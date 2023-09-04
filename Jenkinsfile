@@ -4,12 +4,17 @@ pipeline {
         maven 'Maven' 
         }
     stages {
+        stage("checkout"){
+            steps{
+                // mvn test
+               checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/VEERVEERESH/spring-boot-war-example.git']])
+            }
+            
+        }
         stage("Test"){
             steps{
                 // mvn test
                 sh "mvn test"
-                slackSend channel: 'youtubejenkins', message: 'Job Started'
-                
             }
             
         }
@@ -23,7 +28,7 @@ pipeline {
         stage("Deploy on Test"){
             steps{
                 // deploy on container -> plugin
-                deploy adapters: [tomcat9(credentialsId: 'tomcatserverdetails1', path: '', url: 'http://192.168.0.118:8080')], contextPath: '/app', war: '**/*.war'
+                deploy adapters: [tomcat9(credentialsId: 'f41262ef-ab3a-4ca3-aa20-4f1d80e5261c', path: '', url: 'http://10.0.2.15:8089')], contextPath: '/App', war: '**/*.war'
               
             }
             
@@ -36,22 +41,9 @@ pipeline {
             
             steps{
                 // deploy on container -> plugin
-                deploy adapters: [tomcat9(credentialsId: 'tomcatserverdetails1', path: '', url: 'http://192.168.0.119:8080')], contextPath: '/app', war: '**/*.war'
+                deploy adapters: [tomcat9(credentialsId: 'f41262ef-ab3a-4ca3-aa20-4f1d80e5261c', path: '', url: 'http://10.0.2.15:8089')], contextPath: '/Apps', war: '**/*.war'
 
             }
-        }
-    }
-    post{
-        always{
-            echo "========always========"
-        }
-        success{
-            echo "========pipeline executed successfully ========"
-             slackSend channel: 'youtubejenkins', message: 'Success'
-        }
-        failure{
-            echo "========pipeline execution failed========"
-             slackSend channel: 'youtubejenkins', message: 'Job Failed'
         }
     }
 }
